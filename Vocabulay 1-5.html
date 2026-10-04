@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vocab Flash</title>
+
+<style>
+
+body{
+    font-family:Arial,sans-serif;
+    background:#0b1020;
+    color:white;
+    max-width:800px;
+    margin:auto;
+    padding:20px;
+}
+
+h1{
+    text-align:center;
+}
+
+button,input,select{
+    padding:10px;
+    margin:5px;
+    border:none;
+    border-radius:8px;
+}
+
+button{
+    background:#4f46e5;
+    color:white;
+    cursor:pointer;
+}
+
+.card{
+    background:#1a2244;
+    padding:25px;
+    border-radius:15px;
+    text-align:center;
+}
+
+.progress{
+    width:100%;
+    height:25px;
+    background:#444;
+    border:2px solid white;
+    border-radius:20px;
+    overflow:hidden;
+    margin:20px 0;
+}
+
+#bar{
+    height:100%;
+    width:0%;
+    background:limegreen;
+    transition:0.5s;
+}
+
+#question{
+    font-size:32px;
+    font-weight:bold;
+    margin:20px;
+}
+
+#result{
+    min-height:30px;
+    font-size:20px;
+    font-weight:bold;
+}
+
+.stats{
+    display:flex;
+    justify-content:space-around;
+    flex-wrap:wrap;
+    margin-top:20px;
+}
+
+#reviewBtn{
+    display:none;
+}
+
+</style>
+
+</head>
+<body>
+
+<h1>🎴 Vocabulario 1º ESO NOBELIS</h1>
+
+<select id="unitSelect">
+   <option value="1">Unit 1</option>
+ 
+<option value="2">Unit 2</option>
+<option value="1-2">Units 1-2</option>
+ 
+<option value="3">Unit 3</option>
+<option value="1-3">Units 1-3</option>
+ 
+<option value="4">Unit 4</option>
+<option value="1-4">Units 1-4</option>
+ 
+<option value="5">Unit 5</option>
+ 
+<option value="all">Units 1-5</option>
+</select>
+
+<select id="direction">
+    <option value="EN_ES">English → Spanish</option>
+    <option value="ES_EN">Spanish → English</option>
+</select>
+
+<button onclick="startGame()">
+🚀 Empezar
+</button>
+
+<div class="progress">
+    <div id="bar"></div>
+</div>
+
+<p>
+Progreso:
+<span id="progressText">0%</span>
+</p>
+
+<p>
+Pregunta:
+<span id="questionCounter">0 de 0</span>
+</p>
+
+<div class="card">
+
+<div id="question">
+Pulsa Empezar
+</div>
+
+<input id="answer" placeholder="Escribe aquí">
+
+<button onclick="checkAnswer()">
+✅ Comprobar
+</button>
+
+<div id="result"></div>
+
+<div class="stats">
+
+<div>
+⭐ Puntos:
+<span id="score">0</span>
+</div>
+
+<div>
+🔥 Racha:
+<span id="streak">0</span>
+</div>
+
+<div>
+🏆 Récord:
+<span id="record">0</span>
+</div>
+
+</div>
+
+<h2 id="medal">
+🥉
+</h2>
+
+<button id="reviewBtn" onclick="reviewErrors()">
+🔄 Repasar errores
+</button>
+
+</div>
+
+<script>
+
+const units = {
+ 
+1:[
+ 
+{q:"attractive",a:"atractivo"},
+{q:"bald",a:"calvo"},
+{q:"blonde",a:"rubio"},
+{q:"careful",a:"cuidadoso"},
+{q:"careless",a:"descuidado"},
+{q:"cheerful",a:"alegre"},
+{q:"confident",a:"seguro de sí mismo"},
+{q:"curly",a:"rizado"},
+{q:"dark",a:"oscuro"},
+{q:"elderly",a:"anciano"},
+{q:"friendly",a:"amable"},
+{q:"funny",a:"divertido"},
+{q:"good-looking",a:"atractivo"},
+{q:"handsome",a:"guapo"},
+{q:"middle-aged",a:"de mediana edad"},
+{q:"miserable",a:"muy triste"},
+{q:"polite",a:"educado"},
+{q:"pretty",a:"guapa"},
+{q:"rude",a:"maleducado"},
+{q:"serious",a:"serio"},
+{q:"shy",a:"tímido"},
+{q:"straight",a:"liso"},
+{q:"teenager",a:"adolescente"},
+{q:"unfriendly",a:"antipático"},
+{q:"impatient",a:"impaciente"},
+{q:"impolite",a:"maleducado"},
+{q:"impossible",a:"imposible"},
+{q:"incorrect",a:"incorrecto"},
+{q:"independent",a:"independiente"},
+{q:"inexpensive",a:"barato"},
+{q:"invisible",a:"invisible"},
+{q:"unfair",a:"injusto"},
+{q:"unhealthy",a:"poco saludable"},
+{q:"unkind",a:"poco amable"},
+{q:"unknown",a:"desconocido"},
+{q:"unlucky",a:"desafortunado"},
+{q:"untidy",a:"desordenado"},
+{q:"unwell",a:"enfermo"}
+ 
+],
+ 
+2:[
+
+    {q:"badly-dressed",a:"mal vestido"},
+    {q:"brand new",a:"completamente nuevo"},
+    {q:"casual",a:"informal"},
+    {q:"comfortable",a:"cómodo"},
+    {q:"loose-fitting",a:"holgado"},
+    {q:"second-hand",a:"de segunda mano"},
+    {q:"skinny",a:"ajustado"},
+    {q:"smart",a:"elegante"},
+    {q:"trendy",a:"moderno"},
+    {q:"uncomfortable",a:"incómodo"},
+    {q:"unfashionable",a:"pasado de moda"},
+    {q:"well-dressed",a:"bien vestido"},
+
+    {q:"amazingly",a:"increíblemente"},
+    {q:"badly",a:"mal"},
+    {q:"carefully",a:"cuidadosamente"},
+    {q:"early",a:"temprano"},
+    {q:"fast",a:"rápidamente"},
+    {q:"healthily",a:"saludablemente"},
+    {q:"heavily",a:"intensamente"},
+    {q:"honestly",a:"honestamente"},
+    {q:"lazily",a:"perezosamente"},
+    {q:"luckily",a:"afortunadamente"},
+    {q:"politely",a:"educadamente"},
+    {q:"quickly",a:"rápidamente"},
+    {q:"rudely",a:"groseramente"},
+    {q:"seriously",a:"seriamente"},
+    {q:"well",a:"bien"}
+
+],
+ 
+3:[
+
+    {q:"be born",a:"nacer"},
+    {q:"get a degree",a:"obtener un título"},
+    {q:"get a driving licence",a:"sacarse el carnet de conducir"},
+    {q:"get a job",a:"conseguir trabajo"},
+    {q:"get married",a:"casarse"},
+    {q:"go to university",a:"ir a la universidad"},
+    {q:"have children",a:"tener hijos"},
+    {q:"leave home",a:"independizarse"},
+    {q:"leave school",a:"dejar los estudios"},
+    {q:"move home",a:"mudarse"},
+    {q:"retire",a:"jubilarse"},
+    {q:"start school",a:"empezar la escuela"},
+    {q:"vote",a:"votar"},
+    {q:"enough",a:"suficiente"},
+    {q:"not enough",a:"insuficiente"},
+    {q:"too",a:"demasiado"}
+
+],
+
+3:[
+
+    {q:"be born",a:"nacer"},
+    {q:"get a degree",a:"obtener un título"},
+    {q:"get a driving licence",a:"sacarse el carnet de conducir"},
+    {q:"get a job",a:"conseguir trabajo"},
+    {q:"get married",a:"casarse"},
+    {q:"go to university",a:"ir a la universidad"},
+    {q:"have children",a:"tener hijos"},
+    {q:"leave home",a:"independizarse"},
+    {q:"leave school",a:"dejar los estudios"},
+    {q:"move home",a:"mudarse"},
+    {q:"retire",a:"jubilarse"},
+    {q:"start school",a:"empezar la escuela"},
+    {q:"vote",a:"votar"},
+    {q:"enough",a:"suficiente"},
+    {q:"not enough",a:"insuficiente"},
+    {q:"too",a:"demasiado"}
+
+],
+4:[
+
+    {q:"athletics",a:"atletismo"},
+    {q:"boxing",a:"boxeo"},
+    {q:"climbing",a:"escalada"},
+    {q:"cycling",a:"ciclismo"},
+    {q:"gymnastics",a:"gimnasia"},
+    {q:"ice hockey",a:"hockey sobre hielo"},
+    {q:"ice skating",a:"patinaje sobre hielo"},
+    {q:"jogging",a:"footing"},
+    {q:"rugby",a:"rugby"},
+    {q:"squash",a:"squash"},
+    {q:"surfing",a:"surf"},
+    {q:"swimming",a:"natación"},
+    {q:"table tennis",a:"tenis de mesa"},
+    {q:"tennis",a:"tenis"},
+    {q:"volleyball",a:"voleibol"},
+    {q:"windsurfing",a:"windsurf"}
+
+],
+5:[
+
+    {q:"burglar",a:"ladrón"},
+    {q:"burglary",a:"robo con allanamiento"},
+    {q:"hacker",a:"pirata informático"},
+    {q:"hacking",a:"piratería informática"},
+    {q:"pickpocket",a:"carterista"},
+    {q:"pickpocketing",a:"robo por carterismo"},
+    {q:"rob",a:"robar"},
+    {q:"shoplifter",a:"ladrón en tiendas"},
+    {q:"shoplifting",a:"hurto en tiendas"},
+    {q:"steal",a:"robar"},
+    {q:"theft",a:"robo"},
+    {q:"thief",a:"ladrón"},
+    {q:"vandal",a:"vándalo"},
+    {q:"vandalism",a:"vandalismo"}
+
+],
+
+};
+
+let deck=[];
+let current=0;
+let score=0;
+let streak=0;
+let errors=[];
+
+function shuffle(array){
+
+    for(let i=array.length-1;i>0;i--){
+
+        const j=
+        Math.floor(Math.random()*(i+1));
+
+        [array[i],array[j]]=
+        [array[j],array[i]];
+    }
+
+    return array;
+}
+
+function startGame(){
+
+    const selected =
+    document.getElementById("unitSelect").value;
+
+    const direction =
+    document.getElementById("direction").value;
+
+    let source=[];
+
+ if(selected==="1-2"){
+
+    source=[
+        ...units[1],
+        ...units[2]
+    ];
+
+}
+else if(selected==="1-3"){
+
+    source=[
+        ...units[1],
+        ...units[2],
+        ...units[3]
+    ];
+
+}
+else if(selected==="1-4"){
+
+    source=[
+        ...units[1],
+        ...units[2],
+        ...units[3],
+        ...units[4]
+    ];
+
+}
+else if(selected==="all"){
+
+    source=[
+        ...units[1],
+        ...units[2],
+        ...units[3],
+        ...units[4],
+        ...units[5]
+    ];
+
+}
+else{
+
+    source=[
+        ...units[selected]
+    ];
+
+}
+
+    deck=[];
+
+    source.forEach(card=>{
+
+        if(direction==="EN_ES"){
+
+            deck.push({
+                q:card.q,
+                a:card.a
+            });
+
+        }else{
+
+            deck.push({
+                q:card.a,
+                a:card.q
+            });
+
+        }
+
+    });
+
+    shuffle(deck);
+
+deck = deck.slice(0,10);
+
+    current=0;
+    score=0;
+    streak=0;
+    errors=[];
+
+    document.getElementById("score").textContent="0";
+    document.getElementById("streak").textContent="0";
+
+    document.getElementById("reviewBtn").style.display="none";
+
+    showCard();
+}
+
+function showCard(){
+
+    if(current>=deck.length){
+
+        finishGame();
+        return;
+    }
+
+    document.getElementById("question").textContent=
+    deck[current].q;
+
+    document.getElementById("answer").value="";
+
+    document.getElementById("result").textContent="";
+
+    const percent=
+    (current/deck.length)*100;
+
+    document.getElementById("bar").style.width=
+    percent+"%";
+
+    document.getElementById("progressText").textContent=
+    Math.round(percent)+"%";
+
+    document.getElementById("questionCounter").textContent=
+    (current+1)+" de "+deck.length;
+}
+
+function checkAnswer(){
+
+    const user=
+    document.getElementById("answer")
+    .value
+    .trim()
+    .toLowerCase();
+
+    const correct=
+    deck[current].a.toLowerCase();
+
+    if(user===correct){
+
+        score+=10;
+        streak++;
+
+        document.getElementById("result").textContent=
+        "✅ Correcto";
+
+    }else{
+
+        streak=0;
+
+        errors.push(deck[current]);
+
+        document.getElementById("result").textContent=
+        "❌ Correcta: "+deck[current].a;
+    }
+
+    document.getElementById("score").textContent=
+    score;
+
+    document.getElementById("streak").textContent=
+    streak;
+
+    updateMedal();
+
+    current++;
+
+    setTimeout(showCard,1000);
+}
+
+function updateMedal(){
+
+    let medal="🥉";
+
+    if(score>=20){
+        medal="🥇";
+    }
+    else if(score>=10){
+        medal="🥈";
+    }
+
+    document.getElementById("medal").textContent=
+    medal;
+}
+
+function finishGame(){
+
+    document.getElementById("question").textContent=
+    "🎉 Juego terminado";
+
+    document.getElementById("bar").style.width=
+    "100%";
+
+    document.getElementById("progressText").textContent=
+    "100%";
+
+    document.getElementById("questionCounter").textContent=
+    deck.length+" de "+deck.length;
+
+    let best=
+    localStorage.getItem("record");
+
+    if(!best || score>Number(best)){
+
+        localStorage.setItem(
+            "record",
+            score
+        );
+
+        best=score;
+    }
+
+    document.getElementById("record").textContent=
+    best;
+
+    if(errors.length>0){
+
+        document.getElementById("reviewBtn")
+        .style.display="inline-block";
+    }
+}
+
+function reviewErrors(){
+
+    deck=[...errors];
+
+    errors=[];
+
+    current=0;
+
+    document.getElementById("reviewBtn")
+    .style.display="none";
+
+    showCard();
+}
+
+document.getElementById("answer")
+.addEventListener("keydown",function(e){
+
+    if(e.key==="Enter"){
+        checkAnswer();
+    }
+
+});
+
+const saved=
+localStorage.getItem("record");
+
+if(saved){
+
+    document.getElementById("record")
+    .textContent=saved;
+}
+
+</script>
+
+</body>
+</html>
